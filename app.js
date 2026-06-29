@@ -108,8 +108,6 @@ async function init() {
   setCard("#senate-card", data.chamberStatus.senate);
 
   allBills = data.taxBills || [];
-  renderBills(allBills);
-  renderFederalRegister(data.federalRegister);
 }
 
 document.querySelector("#search").addEventListener("input", e => {
@@ -122,4 +120,33 @@ document.querySelector("#search").addEventListener("input", e => {
   ));
 });
 
+function renderIrsNews(items) {
+  const root = document.querySelector("#irs-news");
+  if (!root) return;
+
+  if (!items || !items.length) {
+    root.innerHTML = `<div class="p-6 text-slate-400">No IRS news releases found.</div>`;
+    return;
+  }
+
+  root.innerHTML = items.map(item => `
+    <article class="p-5 hover:bg-slate-800/60 transition">
+      <span class="inline-flex rounded-full border border-green-500/30 bg-green-500/15 px-2.5 py-1 text-xs font-bold text-green-300 mb-3">
+        IRS
+      </span>
+
+      <a href="${item.url}" target="_blank" rel="noopener" class="block text-xl font-black text-blue-300 hover:text-blue-200">
+        ${item.title}
+      </a>
+
+      <a href="${item.url}" target="_blank" rel="noopener" class="inline-block mt-3 text-sm font-bold text-blue-400 hover:text-blue-300">
+        Open IRS release →
+      </a>
+    </article>
+  `).join("");
+}
+
 init();
+renderBills(allBills);
+renderFederalRegister(data.federalRegister);
+renderIrsNews(data.irsNews);
