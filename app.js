@@ -108,6 +108,10 @@ async function init() {
   setCard("#senate-card", data.chamberStatus.senate);
 
   allBills = data.taxBills || [];
+
+  renderBills(allBills);
+  renderFederalRegister(data.federalRegister);
+  renderIrsNews(data.irsNews);
 }
 
 document.querySelector("#search").addEventListener("input", e => {
@@ -147,6 +151,3 @@ function renderIrsNews(items) {
 }
 
 init();
-renderBills(allBills);
-renderFederalRegister(data.federalRegister);
-renderIrsNews(data.irsNews);
