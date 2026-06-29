@@ -63,6 +63,39 @@ function renderBills(bills) {
     </article>
   `).join("");
 }
+function renderFederalRegister(items) {
+  const root = document.querySelector("#federal-register");
+
+  if (!root) return;
+
+  if (!items || !items.length) {
+    root.innerHTML = `<div class="p-6 text-slate-400">No Federal Register tax items found.</div>`;
+    return;
+  }
+
+  root.innerHTML = items.map(item => `
+    <article class="p-5 hover:bg-slate-800/60 transition">
+      <div class="flex flex-wrap gap-2 mb-3">
+        <span class="inline-flex rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-1 text-xs font-bold text-amber-300">
+          ${item.type || "Document"}
+        </span>
+        <span class="inline-flex rounded-full border border-slate-700 px-2.5 py-1 text-xs font-bold text-slate-300">
+          ${fmtDate(item.date)}
+        </span>
+      </div>
+
+      <a href="${item.url}" target="_blank" rel="noopener" class="text-xl font-black text-blue-300 hover:text-blue-200">
+        ${item.title}
+      </a>
+
+      <p class="text-slate-400 text-sm mt-2">${item.agency}</p>
+
+      <a href="${item.url}" target="_blank" rel="noopener" class="inline-block mt-3 text-sm font-bold text-blue-400 hover:text-blue-300">
+        Open Federal Register →
+      </a>
+    </article>
+  `).join("");
+}
 
 async function init() {
   const res = await fetch("data/dashboard.json");
@@ -76,6 +109,7 @@ async function init() {
 
   allBills = data.taxBills || [];
   renderBills(allBills);
+  renderFederalRegister(data.federalRegister);
 }
 
 document.querySelector("#search").addEventListener("input", e => {
