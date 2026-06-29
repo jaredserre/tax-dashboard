@@ -79,6 +79,24 @@ async function fetchTaxBills() {
     .sort((a, b) => new Date(b.latestActionDate || 0) - new Date(a.latestActionDate || 0))
     .slice(0, 50);
 }
+async function fetchFederalRegisterTaxDocs() {
+  const url =
+    "https://www.federalregister.gov/api/v1/documents.json" +
+    "?conditions%5Bterm%5D=tax" +
+    "&conditions%5Bagencies%5D%5B%5D=treasury-department" +
+    "&order=newest" +
+    "&per_page=10";
+
+  const data = await getJson(url);
+
+  return (data.results || []).map(item => ({
+    title: item.title,
+    date: item.publication_date,
+    type: item.type,
+    agency: item.agencies?.map(a => a.name).join(", ") || "Federal Register",
+    url: item.html_url
+  }));
+}
 
 const dashboard = {
   updatedAt: new Date().toISOString(),
@@ -96,7 +114,8 @@ const dashboard = {
       source: "U.S. Senate floor activity"
     }
   },
-  taxBills: await fetchTaxBills()
+  taxBills: await fetchTaxBills(),
+  federalRegister: await fetchFederalRegisterTaxDocs()
 };
 
 await fs.mkdir("data", { recursive: true });
