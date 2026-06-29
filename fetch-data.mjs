@@ -97,6 +97,29 @@ async function fetchFederalRegisterTaxDocs() {
     url: item.html_url
   }));
 }
+async function fetchIrsNews() {
+  const url = "https://www.irs.gov/newsroom/news-releases-for-current-month";
+  const html = await fetch(url).then(res => res.text());
+
+  const links = [...html.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)];
+
+  return links
+    .map(match => {
+      const href = match[1];
+      const title = match[2].replace(/\s+/g, " ").trim();
+
+      if (!href.includes("/newsroom/")) return null;
+      if (!title.startsWith("IR-")) return null;
+
+      return {
+        title,
+        source: "IRS",
+        url: href.startsWith("http") ? href : `https://www.irs.gov${href}`
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 10);
+}
 
 const dashboard = {
   updatedAt: new Date().toISOString(),
@@ -115,7 +138,8 @@ const dashboard = {
     }
   },
   taxBills: await fetchTaxBills(),
-  federalRegister: await fetchFederalRegisterTaxDocs()
+  federalRegister: await fetchFederalRegisterTaxDocs(),
+  irsNews: await fetchIrsNews()
 };
 
 await fs.mkdir("data", { recursive: true });
