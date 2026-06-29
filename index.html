@@ -3,38 +3,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Federal Tax Policy Dashboard</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Federal Tax Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <main class="wrap">
-    <header>
-      <p class="eyebrow">Federal tax policy tracker</p>
-      <h1>Congress Tax Dashboard</h1>
-      <p id="updated">Loading latest data…</p>
+
+<body class="bg-slate-950 text-slate-100">
+  <main class="max-w-7xl mx-auto px-5 py-8">
+    <header class="mb-8">
+      <p class="text-blue-400 uppercase tracking-widest text-sm font-bold">Federal Tax Policy</p>
+      <h1 class="text-4xl md:text-6xl font-black mt-2">Congress Tax Dashboard</h1>
+      <p id="updated" class="text-slate-400 mt-3">Loading latest data…</p>
     </header>
 
-    <section class="cards">
-      <a id="house-card" class="card" target="_blank">
-        <span>House of Representatives</span>
-        <strong>Loading…</strong>
-        <small></small>
+    <section class="grid md:grid-cols-2 gap-4 mb-8">
+      <a id="house-card" target="_blank" class="rounded-2xl bg-slate-900 border border-slate-800 p-6 hover:border-blue-400 transition">
+        <p class="text-slate-400">House of Representatives</p>
+        <h2 class="text-3xl font-black mt-2">Loading…</h2>
+        <p class="text-sm text-slate-500 mt-2"></p>
       </a>
 
-      <a id="senate-card" class="card" target="_blank">
-        <span>U.S. Senate</span>
-        <strong>Loading…</strong>
-        <small></small>
+      <a id="senate-card" target="_blank" class="rounded-2xl bg-slate-900 border border-slate-800 p-6 hover:border-blue-400 transition">
+        <p class="text-slate-400">U.S. Senate</p>
+        <h2 class="text-3xl font-black mt-2">Loading…</h2>
+        <p class="text-sm text-slate-500 mt-2"></p>
       </a>
     </section>
 
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Tax bills — latest action first</h2>
-        <input id="search" placeholder="Filter bills…" />
+    <section class="rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden">
+      <div class="p-5 border-b border-slate-800 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+        <div>
+          <h2 class="text-2xl font-black">Latest Tax Bills</h2>
+          <p class="text-slate-400 text-sm">Sorted by most recent congressional action</p>
+        </div>
+
+        <input id="search" class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 w-full md:w-80" placeholder="Search bills, sponsors, actions…" />
       </div>
 
-      <div id="bills" class="bills"></div>
+      <div id="bills" class="divide-y divide-slate-800"></div>
     </section>
   </main>
 
