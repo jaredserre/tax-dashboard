@@ -11,8 +11,19 @@
       "label": "Senate",
       "status": "Pending first refresh",
       "url": "https://www.senate.gov/legislative/floor_activity_pail.htm",
-      "source": "U.S. Senate"
+      "source": "U.S. Senate floor activity"
     }
   },
-  "taxBills": []
+  "today": {
+    "taxBillsUpdatedToday": 0,
+    "federalRegisterToday": 0,
+    "irsItems": 0,
+    "treasuryItems": 0
+  },
+  "taxBills": [],
+  "federalRegister": [],
+  "irsNews": [],
+  "treasuryNews": [],
+  "hearings": [],
+  "watchlist": []
 }
