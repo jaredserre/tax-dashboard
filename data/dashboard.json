@@ -1,0 +1,18 @@
+{
+  "updatedAt": "2026-06-29T00:00:00.000Z",
+  "chamberStatus": {
+    "house": {
+      "label": "House",
+      "status": "Pending first refresh",
+      "url": "https://clerk.house.gov/",
+      "source": "Office of the Clerk"
+    },
+    "senate": {
+      "label": "Senate",
+      "status": "Pending first refresh",
+      "url": "https://www.senate.gov/legislative/floor_activity_pail.htm",
+      "source": "U.S. Senate"
+    }
+  },
+  "taxBills": []
+}
