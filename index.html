@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Federal Tax Policy Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <p class="eyebrow">Federal tax policy tracker</p>
+      <h1>Congress Tax Dashboard</h1>
+      <p id="updated">Loading latest data…</p>
+    </header>
+
+    <section class="cards">
+      <a id="house-card" class="card" target="_blank">
+        <span>House of Representatives</span>
+        <strong>Loading…</strong>
+        <small></small>
+      </a>
+
+      <a id="senate-card" class="card" target="_blank">
+        <span>U.S. Senate</span>
+        <strong>Loading…</strong>
+        <small></small>
+      </a>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Tax bills — latest action first</h2>
+        <input id="search" placeholder="Filter bills…" />
+      </div>
+
+      <div id="bills" class="bills"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
