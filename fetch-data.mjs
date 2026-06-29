@@ -2,91 +2,100 @@ import fs from "fs/promises";
 
 const API_KEY = process.env.CONGRESS_API_KEY;
 const CONGRESS = 119;
-const LIMIT = 80;
+const LIMIT = 100;
+
+const BILL_TYPE_PATHS = {
+  hr: "house-bill",
+  s: "senate-bill",
+  hjres: "house-joint-resolution",
+  sjres: "senate-joint-resolution",
+  hconres: "house-concurrent-resolution",
+  sconres: "senate-concurrent-resolution",
+  hres: "house-resolution",
+  sres: "senate-resolution"
+};
 
 async function getJson(url) {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
+  if (!res.ok) throw new Error(`${res.status}: ${url}`);
   return res.json();
 }
 
-function congressUrl(bill) {
-  const type = bill.type.toLowerCase().replace("jres", "jres").replace("conres", "conres");
-  return `https://www.congress.gov/bill/${bill.congress}th-congress/${billTypePath(type)}/${bill.number}`;
+function congressBillUrl(bill) {
+  const type = bill.type.toLowerCase();
+  return `https://www.congress.gov/bill/${bill.congress}th-congress/${BILL_TYPE_PATHS[type]}/${bill.number}`;
 }
 
-function billTypePath(type) {
-  return {
-    hr: "house-bill",
-    s: "senate-bill",
-    hjres: "house-joint-resolution",
-    sjres: "senate-joint-resolution",
-    hconres: "house-concurrent-resolution",
-    sconres: "senate-concurrent-resolution",
-    hres: "house-resolution",
-    sres: "senate-resolution"
-  }[type] || type;
+async function getBillSubjects(bill) {
+  const type = bill.type.toLowerCase();
+  const url = `https://api.congress.gov/v3/bill/${bill.congress}/${type}/${bill.number}/subjects?format=json&api_key=${API_KEY}`;
+  return getJson(url);
+}
+
+function isTaxBill(bill, subjects) {
+  const policyArea = subjects.subjects?.policyArea?.name || "";
+  const legislativeSubjects = subjects.subjects?.legislativeSubjects?.map(s => s.name).join(" ") || "";
+
+  const text = `${bill.title} ${policyArea} ${legislativeSubjects}`.toLowerCase();
+
+  return (
+    policyArea.toLowerCase() === "taxation" ||
+    text.includes("tax") ||
+    text.includes("internal revenue") ||
+    text.includes("irs") ||
+    text.includes("tariff")
+  );
 }
 
 async function fetchTaxBills() {
   const url = `https://api.congress.gov/v3/bill/${CONGRESS}?format=json&limit=${LIMIT}&api_key=${API_KEY}`;
   const data = await getJson(url);
 
-  const bills = data.bills || [];
+  const results = [];
 
-  const checked = await Promise.all(
-    bills.map(async bill => {
-      try {
-        const subjectUrl = `https://api.congress.gov/v3/bill/${bill.congress}/${bill.type.toLowerCase()}/${bill.number}/subjects?format=json&api_key=${API_KEY}`;
-        const subjects = await getJson(subjectUrl);
-        const policy = subjects.subjects?.policyArea?.name || "";
-        const legislative = subjects.subjects?.legislativeSubjects?.map(s => s.name).join(" ") || "";
-        const haystack = `${policy} ${legislative} ${bill.title}`.toLowerCase();
+  for (const bill of data.bills || []) {
+    try {
+      const subjects = await getBillSubjects(bill);
 
-        if (!haystack.includes("tax")) return null;
+      if (!isTaxBill(bill, subjects)) continue;
 
-        return {
-          title: bill.title,
-          congress: bill.congress,
-          type: bill.type,
-          number: bill.number,
-          chamber: bill.originChamber || "",
-          latestActionDate: bill.latestAction?.actionDate || "",
-          latestActionText: bill.latestAction?.text || "",
-          url: congressUrl(bill)
-        };
-      } catch {
-        return null;
-      }
-    })
-  );
+      results.push({
+        id: `${bill.type} ${bill.number}`,
+        title: bill.title,
+        congress: bill.congress,
+        type: bill.type,
+        number: bill.number,
+        chamber: bill.originChamber || "",
+        latestActionDate: bill.latestAction?.actionDate || "",
+        latestActionText: bill.latestAction?.text || "",
+        url: congressBillUrl(bill)
+      });
+    } catch {
+      // Skip individual bills that fail.
+    }
+  }
 
-  return checked
-    .filter(Boolean)
-    .sort((a, b) => new Date(b.latestActionDate) - new Date(a.latestActionDate))
-    .slice(0, 40);
+  return results
+    .sort((a, b) => new Date(b.latestActionDate || 0) - new Date(a.latestActionDate || 0))
+    .slice(0, 50);
 }
 
-async function fetchChamberStatus() {
-  return {
+const dashboard = {
+  updatedAt: new Date().toISOString(),
+  chamberStatus: {
     house: {
       label: "House",
-      status: "Check live status",
+      status: "Official status",
       url: "https://clerk.house.gov/",
       source: "Office of the Clerk"
     },
     senate: {
       label: "Senate",
-      status: "Check live status",
+      status: "Official status",
       url: "https://www.senate.gov/legislative/floor_activity_pail.htm",
-      source: "U.S. Senate"
+      source: "U.S. Senate floor activity"
     }
-  };
-}
-
-const dashboard = {
-  updatedAt: new Date().toISOString(),
-  chamberStatus: await fetchChamberStatus(),
+  },
   taxBills: await fetchTaxBills()
 };
 
