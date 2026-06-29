@@ -121,22 +121,58 @@ async function fetchIrsNews() {
     .slice(0, 10);
 }
 
+async function fetchHouseStatus() {
+  const url = "https://clerk.house.gov/Static/";
+  const html = await fetch(url).then(res => res.text());
+
+  const text = html.replace(/\s+/g, " ").toLowerCase();
+
+  let status = "Check official status";
+
+  if (text.includes("house is in session")) {
+    status = "In session";
+  } else if (text.includes("house is not in session")) {
+    status = "Not in session";
+  } else if (text.includes("house adjourned") || text.includes("the house adjourned")) {
+    status = "Adjourned";
+  }
+
+  return {
+    label: "House",
+    status,
+    url: "https://clerk.house.gov/",
+    source: "Office of the Clerk"
+  };
+}
+
+async function fetchSenateStatus() {
+  const url = "https://www.senate.gov/legislative/floor_activity_pail.htm";
+  const html = await fetch(url).then(res => res.text());
+
+  const text = html.replace(/\s+/g, " ").toLowerCase();
+
+  let status = "Check official status";
+
+  if (text.includes("senate is in session") || text.includes("called the senate to order")) {
+    status = "In session";
+  } else if (text.includes("senate stands adjourned") || text.includes("adjourned")) {
+    status = "Adjourned";
+  }
+
+  return {
+    label: "Senate",
+    status,
+    url,
+    source: "U.S. Senate floor activity"
+  };
+}
+
 const dashboard = {
   updatedAt: new Date().toISOString(),
   chamberStatus: {
-    house: {
-      label: "House",
-      status: "Official status",
-      url: "https://clerk.house.gov/",
-      source: "Office of the Clerk"
-    },
-    senate: {
-      label: "Senate",
-      status: "Official status",
-      url: "https://www.senate.gov/legislative/floor_activity_pail.htm",
-      source: "U.S. Senate floor activity"
-    }
-  },
+  house: await fetchHouseStatus(),
+  senate: await fetchSenateStatus()
+},
   taxBills: await fetchTaxBills(),
   federalRegister: await fetchFederalRegisterTaxDocs(),
   irsNews: await fetchIrsNews()
