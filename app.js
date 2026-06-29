@@ -112,6 +112,7 @@ async function init() {
   renderBills(allBills);
   renderFederalRegister(data.federalRegister);
   renderIrsNews(data.irsNews);
+  renderHearings(data.hearings);
 }
 
 document.querySelector("#search").addEventListener("input", e => {
@@ -146,6 +147,38 @@ function renderIrsNews(items) {
       <a href="${item.url}" target="_blank" rel="noopener" class="inline-block mt-3 text-sm font-bold text-blue-400 hover:text-blue-300">
         Open IRS release →
       </a>
+    </article>
+  `).join("");
+}
+
+function renderHearings(items) {
+  const root = document.querySelector("#hearings");
+
+  if (!root) return;
+
+  if (!items || !items.length) {
+    root.innerHTML =
+      `<div class="p-6 text-slate-400">No upcoming hearings found.</div>`;
+    return;
+  }
+
+  root.innerHTML = items.map(item => `
+    <article class="p-5 hover:bg-slate-800/60 transition">
+      <div class="flex gap-2 mb-3">
+        <span class="inline-flex rounded-full border border-red-500/30 bg-red-500/15 px-2 py-1 text-xs font-bold text-red-300">
+          ${item.committee}
+        </span>
+      </div>
+
+      <a href="${item.url}"
+         target="_blank"
+         class="block text-xl font-black text-blue-300">
+         ${item.title}
+      </a>
+
+      <p class="text-slate-400 mt-2">
+        ${item.date}
+      </p>
     </article>
   `).join("");
 }
